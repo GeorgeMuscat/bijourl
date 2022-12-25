@@ -1,0 +1,25 @@
+version: '3'
+services:
+  api:
+    build: .
+    ports:
+      - "9000:9000"
+    command: npm run dev
+    networks:
+      - skurl-net
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - skurl-net
+networks:
+  skurl-net:
+    driver: bridge
+volumes:
+  mongodata:

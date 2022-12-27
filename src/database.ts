@@ -1,22 +1,38 @@
-import { IMonkManager, ICollection } from "monk";
-import * as monk from 'monk';
-import * as dotenv from 'dotenv';
+import monk from 'monk';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const db: IMonkManager = monk.default(process.env.MONGO_URI ?? '');
-const URLS: ICollection = db.get('URLS');
-URLS.createIndex({"slug": 1}, {unique: true});
+const db = monk(process.env.MONGO_URI ?? '');
+db.then(() => {
+    console.log('Connected correctly to server');
+});
+const URLS = db.create('URLS');
 
-export const putLink = async (slug: string, URL: string): Promise<void> => {
+URLS.createIndex({"slug": 1}, {unique: true}); // will not create if the index already exists
+
+export const putLink = async (slug: string, URL: string): Promise<any> => {
     try {
-        URLS.insert({slug, URL});
+        return URLS.insert({slug, URL});
     } catch (error) {
         console.log(error);
     }
 }
 
-export const getLink = async (slug: string): Promise<string> => {
-    return URLS.findOne({slug: slug}, { projection: { 'URL': 1} });
+export const getLink = async (slug: string): Promise<any> => {
+    try {
+        return URLS.findOne({slug: slug}, { projection: { '_id': 0, 'URL' : 1 } });
+    } catch (error) {
+        console.log(error);
+    }
 
+}
+
+export const validateSlug = async (slug: string): Promise<boolean> => {
+    try {
+        if (await URLS.count({slug: slug}) === 0) return true;
+    } catch (error) {
+        console.log(error);
+    }
+    return false;
 }

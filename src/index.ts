@@ -1,12 +1,12 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
-import * as yup from "yup";
+import * as yup from "yup"; // this import is cringe but it does not work unless it is like this :(
 import { nanoid } from "nanoid";
-// import { getLink, putLink } from "./database"
+import { getLink, putLink, validateSlug } from "./database"
 
 const app: Application = express();
-const port: Number = 9000;
+const port: number = 9000;
 
 app.use(helmet());
 app.use(cors());
@@ -17,6 +17,15 @@ const schema = yup.object().shape({
     slug: yup.string().trim(),
 });
 
+declare interface PutReturn {
+    URL: string,
+    slug: string
+}
+
+declare interface GetReturn {
+    URL: string
+}
+
 app.post("/create", async (req: Request, res: Response, next: NextFunction) => {
     let { slug, dest } = req.body;
 
@@ -26,9 +35,17 @@ app.post("/create", async (req: Request, res: Response, next: NextFunction) => {
             slug = nanoid(6);
         }
 
+        // Check that slug does not already exist in record.
+        if (!await validateSlug(slug)) {
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            res.status(418).json({msg: "The slug provided or generated is invalid, please try again with a different/no slug."})
+            return;
+        }
+
         // Record the slug and destination
-        // putLink(slug, dest);
-        res.json({ slug, dest });
+        const { _id, ...ret } = await putLink(slug, dest);
+        const checked: PutReturn = ret;
+        res.json(checked);
     } catch (error) {
         next(error);
     }
@@ -37,9 +54,9 @@ app.post("/create", async (req: Request, res: Response, next: NextFunction) => {
 app.get("/:slug", async (req: Request, res: Response, next: NextFunction) => {
     const { slug } = req.params;
     try {
-        const url = "https://google.com/";//await getLink(slug);
+        const url: GetReturn | void = await getLink(slug);
         if (url) {
-            res.redirect(url);
+            res.redirect(url.URL);
         } else {
             res.status(404).json({msg: "URL does not exist."});
         }

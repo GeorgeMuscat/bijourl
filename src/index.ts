@@ -4,9 +4,12 @@ import helmet from "helmet";
 import * as yup from "yup"; // this import is cringe but it does not work unless it is like this :(
 import { nanoid } from "nanoid";
 import { getLink, putLink, validateSlug } from "./database"
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app: Application = express();
-const port: number = 9000;
+const port: string = process.env.PORT || '80'
 
 app.use(helmet());
 app.use(cors());
@@ -64,6 +67,8 @@ app.get("/:slug", async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 });
+
+app.use("/.well-known/acme-challenge/", express.static('public'));
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

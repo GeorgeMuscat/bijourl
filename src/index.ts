@@ -14,7 +14,7 @@ const port: string = process.env.PORT || '80'
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use("/.well-known/acme-challenge/", express.static('public', { dotfiles: 'allow' }));
+app.use(express.static(__dirname, { dotfiles: 'allow' }));
 
 const schema = yup.object().shape({
     dest: yup.string().trim().url().required(),

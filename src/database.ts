@@ -8,7 +8,7 @@ db.then(() => {
     console.log('Connected correctly to server');
 });
 
-let URLS = new ICollection<any>();
+let URLS: ICollection<any>;
 try {
     URLS = db.create('URLS');
 } catch (error) {

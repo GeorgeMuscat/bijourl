@@ -10,9 +10,9 @@ db.then(() => {
 
 let URLS: ICollection<any>;
 try {
-    URLS = db.create('URLS');
-} catch (error) {
     URLS = db.get('URLS');
+} catch (error) {
+    URLS = db.create('URLS');
 }
 
 URLS.createIndex({"slug": 1}, {unique: true}); // will not create if the index already exists

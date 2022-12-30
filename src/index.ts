@@ -14,6 +14,7 @@ const port: string = process.env.PORT || '80'
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use("/.well-known/acme-challenge/", express.static('public'));
 
 const schema = yup.object().shape({
     dest: yup.string().trim().url().required(),
@@ -68,7 +69,6 @@ app.get("/:slug", async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-app.use("/.well-known/acme-challenge/", express.static('public'));
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

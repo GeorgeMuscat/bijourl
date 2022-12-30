@@ -7,8 +7,8 @@ const db = monk(process.env.MONGO_URI ?? '');
 db.then(() => {
     console.log('Connected correctly to server');
 });
-let URLS = new ICollection<any>;
 
+let URLS = new ICollection<any>;
 try {
     URLS = db.create('URLS');
 } catch (error) {

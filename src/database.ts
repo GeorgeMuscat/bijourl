@@ -1,4 +1,4 @@
-import monk from 'monk';
+import monk, { ICollection } from 'monk';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -7,7 +7,13 @@ const db = monk(process.env.MONGO_URI ?? '');
 db.then(() => {
     console.log('Connected correctly to server');
 });
-const URLS = db.create('URLS');
+let URLS = new ICollection<any>;
+
+try {
+    URLS = db.create('URLS');
+} catch (error) {
+    URLS = db.get('URLS');
+}
 
 URLS.createIndex({"slug": 1}, {unique: true}); // will not create if the index already exists
 
